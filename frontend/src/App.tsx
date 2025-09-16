@@ -11,7 +11,7 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -23,137 +23,113 @@ function App() {
     scrollToBottom()
   }, [messages])
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const allowedTypes = ['.txt', '.md', '.pdf', '.zip']
-      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
-      
-      if (allowedTypes.includes(fileExtension)) {
-        setSelectedFile(file)
-      } else {
-        alert('Please select a .txt, .md, .pdf, or .zip file')
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+
+    const userMessage: Message = { role: 'user', content: input }
+    const newMessages = [...messages, userMessage]
+    setMessages(newMessages)
+    setInput('')
+    setIsLoading(true)
+
+    try {
+      // Add assistant message placeholder
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }])
+
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: newMessages }),
+      })
+
+      if (!response.body) {
+        throw new Error('No response body')
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            if (data === '[DONE]') {
+              setIsLoading(false)
+              return
+            }
+
+            try {
+              const parsed = JSON.parse(data)
+              if (parsed.content) {
+                setMessages(prev => {
+                  const updated = [...prev]
+                  const lastMessage = updated[updated.length - 1]
+                  if (lastMessage.role === 'assistant') {
+                    lastMessage.content += parsed.content
+                  }
+                  return updated
+                })
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          }
         }
       }
+    } catch (error) {
+      console.error('Chat error:', error)
+      setMessages(prev => {
+        const updated = [...prev]
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: 'Sorry, there was an error connecting to the chat service.'
+        }
+        return updated
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const uploadFile = async (file: File) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
     const formData = new FormData()
     formData.append('file', file)
 
     try {
       const response = await axios.post('/api/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
+
+      setUploadedFile(response.data.filename)
       
-      setMessages(prev => [...prev, {
+      // Add system message about uploaded file
+      const uploadMessage: Message = {
         role: 'assistant',
         content: `Uploaded file: ${response.data.filename}`
-      }])
+      }
+      setMessages(prev => [...prev, uploadMessage])
     } catch (error) {
-      console.error('File upload error:', error)
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Error uploading file'
-      }])
-    }
-  }
-
-  const sendMessage = async () => {
-    if (!input.trim() && !selectedFile) return
-
-    setIsLoading(true)
-    
-    // Handle file upload first
-    if (selectedFile) {
-      await uploadFile(selectedFile)
-      setSelectedFile(null)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      console.error('Upload error:', error)
+      alert('File upload failed')
     }
 
-    // Handle text message
-    if (input.trim()) {
-      const userMessage: Message = { role: 'user', content: input }
-      setMessages(prev => [...prev, userMessage])
-      setInput('')
-
-      try {
-        // Use Server-Sent Events for streaming
-        const response = await fetch('/api/chat/stream', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [...messages, userMessage]
-          })
-        })
-
-        if (!response.body) {
-          throw new Error('No response body')
-        }
-
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-        
-        // Add assistant message placeholder
-        setMessages(prev => [...prev, { role: 'assistant', content: '' }])
-        
-        let assistantContent = ''
-        
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6)
-              if (data === '[DONE]') {
-                break
-              }
-              
-              try {
-                const parsed = JSON.parse(data)
-                if (parsed.content) {
-                  assistantContent += parsed.content
-                  setMessages(prev => {
-                    const newMessages = [...prev]
-                    newMessages[newMessages.length - 1].content = assistantContent
-                    return newMessages
-                  })
-                }
-              } catch (e) {
-                // Ignore parsing errors for partial chunks
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Chat error:', error)
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: 'Error: Could not connect to the chat service'
-        }])
-      }
-    }
-
-    setIsLoading(false)
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
@@ -185,38 +161,32 @@ function App() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="input-area">
+        <form onSubmit={handleSubmit} className="input-form">
+          <div className="input-row">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              disabled={isLoading}
+              className="message-input"
+            />
+            <button type="submit" disabled={isLoading || !input.trim()}>
+              Send
+            </button>
+          </div>
+          
           <div className="file-upload">
             <input
               ref={fileInputRef}
               type="file"
+              onChange={handleFileUpload}
               accept=".txt,.md,.pdf,.zip"
-              onChange={handleFileSelect}
               className="file-input"
             />
-            {selectedFile && (
-              <span className="selected-file">Selected: {selectedFile.name}</span>
-            )}
+            <label>Upload file (.txt, .md, .pdf, .zip)</label>
           </div>
-          
-          <div className="message-input">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
-              disabled={isLoading}
-              rows={3}
-            />
-            <button 
-              onClick={sendMessage} 
-              disabled={isLoading || (!input.trim() && !selectedFile)}
-              className="send-button"
-            >
-              Send
-            </button>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   )

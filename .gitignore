@@ -96,5 +96,6 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# File uploads
+# Uploads
 uploads/
+backend/uploads/
