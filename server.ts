@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url'
 import chatRoutes from './routes/chat.js'
 import uploadRoutes from './routes/upload.js'
 import healthRoutes from './routes/health.js'
+import codeRoutes from './routes/code.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -21,10 +22,14 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'dist')))
 }
 
+// Serve generated files
+app.use('/generated', express.static('generated'))
+
 // API Routes
 app.use('/api/chat', chatRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/health', healthRoutes)
+app.use('/api/code', codeRoutes)
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
