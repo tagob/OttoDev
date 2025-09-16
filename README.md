@@ -1,4 +1,4 @@
-# Ollama Chatbot
+ Ollama Chatbot
 
 A minimal React + TypeScript frontend and Express + TypeScript backend chatbot that works with local Ollama models.
 
