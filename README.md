@@ -1,38 +1,41 @@
- Ollama Chatbot
+# OttoDev
 
-A minimal React + TypeScript frontend and Express + TypeScript backend chatbot that works with local Ollama models.
+A lightweight local development assistant with AI chat and code generation capabilities. Think of it as a locally runnable version of bolt.diy with essential features for developers.
 
-## Project Structure
+## 🚀 Features
+
+- **AI Chat Interface**: Clean React-based chat UI with streaming responses
+- **Code Generation**: Generate and preview code snippets with syntax highlighting
+- **File Management**: Upload, view, and manage project files
+- **Live Preview**: Real-time preview of generated HTML/CSS/JS
+- **Local AI Integration**: Works with local Ollama models
+- **Modern Stack**: React + TypeScript frontend, Express + TypeScript backend
+
+## 🏗️ Project Structure
 
 ```
-├── frontend/          # React + TypeScript (Vite)
-│   ├── src/
-│   │   ├── App.tsx
-│   │   ├── App.css
-│   │   ├── main.tsx
-│   │   └── index.css
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tsconfig.json
-│   └── index.html
-├── backend/           # Express + TypeScript
-│   ├── src/
-│   │   └── server.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── shared/            # Future shared utilities
-└── README.md
+ottodev/
+├── server.ts              # Main Express server
+├── routes/                # API routes
+│   ├── chat.ts           # Chat endpoints
+│   ├── upload.ts         # File upload
+│   ├── health.ts         # Health check
+│   └── code.ts           # Code generation
+├── controllers/           # Business logic
+├── services/             # External integrations
+├── models/               # TypeScript interfaces
+├── utils/                # Utilities
+├── src/                  # React frontend
+│   ├── components/       # UI components
+│   ├── pages/           # Page components
+│   ├── hooks/           # Custom hooks
+│   ├── services/        # API services
+│   └── utils/           # Frontend utilities
+├── uploads/             # File uploads
+└── generated/           # Generated code files
 ```
 
-## Features
-
-- **Chat Interface**: Clean React-based chat UI with message history
-- **Streaming Responses**: Real-time streaming from Ollama via Server-Sent Events
-- **File Upload**: Support for .txt, .md, .pdf, .zip files
-- **TypeScript**: Full type safety across frontend and backend
-- **CORS Enabled**: Proper cross-origin setup for development
-
-## Prerequisites
+## 🛠️ Prerequisites
 
 1. **Node.js 20+** installed
 2. **Ollama** running locally:
@@ -44,59 +47,61 @@ A minimal React + TypeScript frontend and Express + TypeScript backend chatbot t
    ollama pull deepseek-coder
    ```
 
-## Quick Start
+## 🚀 Quick Start
 
 1. **Install dependencies**:
    ```bash
-   # Install frontend dependencies
-   cd frontend && npm install
-   
-   # Install backend dependencies
-   cd ../backend && npm install
+   npm install
    ```
 
-2. **Start development servers**:
+2. **Start development**:
    ```bash
-   # From project root - starts both frontend and backend
    npm run dev
-   ```
-
-   Or start them separately:
-   ```bash
-   # Terminal 1 - Backend (port 3001)
-   cd backend && npm run dev
-   
-   # Terminal 2 - Frontend (port 3000)
-   cd frontend && npm run dev
    ```
 
 3. **Open your browser** to `http://localhost:3000`
 
-## API Endpoints
+## 📝 Usage
 
-- `POST /api/chat` - Non-streaming chat with Ollama
-- `POST /api/chat/stream` - Streaming chat via Server-Sent Events
-- `POST /api/upload` - File upload (returns filename)
-- `GET /api/health` - Health check
+### Chat with AI
+- Type messages to get AI assistance
+- Ask for code generation, explanations, or debugging help
+- Responses stream in real-time
 
-## Environment Variables
+### Generate Code
+- Request HTML, CSS, or JavaScript code
+- Preview generated code instantly
+- Save generated files to your project
 
-Backend supports these environment variables:
+### File Management
+- Upload files (.txt, .md, .pdf, .zip)
+- View and manage uploaded files
+- Reference files in your conversations
 
+## 🔧 Configuration
+
+Environment variables:
 - `OLLAMA_HOST` - Ollama server URL (default: `http://localhost:11434`)
 - `MODEL` - Ollama model name (default: `deepseek-coder`)
 - `PORT` - Backend port (default: `3001`)
 
-## Usage
+## 🏃‍♂️ Development
 
-1. Type messages in the chat input and press Send
-2. Upload files using the file input (supported: .txt, .md, .pdf, .zip)
-3. Watch responses stream in real-time from the Ollama model
-4. View chat history with user and assistant messages
+- `npm run dev` - Start both frontend and backend
+- `npm run dev:server` - Backend only (port 3001)
+- `npm run dev:client` - Frontend only (port 3000)
+- `npm run build` - Build for production
+- `npm run clean` - Clean build artifacts
 
-## Development
+## 🎯 Roadmap
 
-- Frontend runs on port 3000 with Vite dev server
-- Backend runs on port 3001 with ts-node-dev for hot reloading
-- Vite proxy forwards `/api/*` requests to the backend
-- TypeScript compilation and type checking enabled for both projects
+- [ ] Project templates
+- [ ] Git integration
+- [ ] Database schema generation
+- [ ] API endpoint generation
+- [ ] Component library
+- [ ] Deployment helpers
+
+---
+
+**OttoDev** - Your local development companion 🤖
