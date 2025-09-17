@@ -5,10 +5,21 @@ import WorkspacePanel from './WorkspacePanel'
 import { useChat } from '../hooks/useChat'
 import { useFileUpload } from '../hooks/useFileUpload'
 
-const MainWorkspace: React.FC = () => {
+interface MainWorkspaceProps {
+  initialMessage: string
+}
+
+const MainWorkspace: React.FC<MainWorkspaceProps> = ({ initialMessage }) => {
   const { messages, isLoading, sendMessage } = useChat()
   const { uploadFile } = useFileUpload()
   const [generatedCode, setGeneratedCode] = useState<{code: string, language: string} | null>(null)
+
+  // Send initial message when component mounts
+  useEffect(() => {
+    if (initialMessage) {
+      sendMessage(initialMessage)
+    }
+  }, [initialMessage, sendMessage])
 
   const handleSendMessage = (content: string) => {
     sendMessage(content)

@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Zap, Code, MessageSquare, Sparkles, ArrowRight } from 'lucide-react'
+import { Zap, Code, MessageSquare, Sparkles, ArrowRight, Bot } from 'lucide-react'
 
 interface WelcomeScreenProps {
-  onStart: () => void
+  onStart: (message: string) => void
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
@@ -12,7 +12,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim()) {
-      onStart()
+      onStart(input.trim())
     }
   }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useCallback } from 'react'
 import { chatService } from '../services/chatService'
 import { Message } from '../../models/Message'
 
@@ -6,7 +7,7 @@ export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const sendMessage = async (content: string, role: 'user' | 'system' = 'user') => {
+  const sendMessage = useCallback(async (content: string, role: 'user' | 'system' = 'user') => {
     if (role === 'system') {
       const systemMessage: Message = { role: 'assistant', content }
       setMessages(prev => [...prev, systemMessage])
@@ -45,7 +46,7 @@ export const useChat = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [messages])
 
   return { messages, isLoading, sendMessage }
 }

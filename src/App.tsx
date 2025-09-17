@@ -5,8 +5,10 @@ import MainWorkspace from './components/MainWorkspace'
 
 function App() {
   const [hasStarted, setHasStarted] = useState(false)
+  const [initialMessage, setInitialMessage] = useState('')
 
-  const handleStart = () => {
+  const handleStart = (message: string) => {
+    setInitialMessage(message)
     setHasStarted(true)
   }
 
@@ -16,7 +18,7 @@ function App() {
         {!hasStarted ? (
           <WelcomeScreen key="welcome" onStart={handleStart} />
         ) : (
-          <MainWorkspace key="workspace" />
+          <MainWorkspace key="workspace" initialMessage={initialMessage} />
         )}
       </AnimatePresence>
     </div>

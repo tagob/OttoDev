@@ -12,7 +12,7 @@
     "build:client": "tsc && vite build",
     "build:server": "tsc --project tsconfig.server.json",
     "start": "node dist/server.js",
-    "clean": "rm -rf dist uploads node_modules/.vite",
+    "clean": "rm -rf dist uploads generated node_modules/.vite",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -5,14 +5,13 @@ import path from 'path'
 
 const ollamaService = new OllamaService()
 
-// Create generated directory if it doesn't exist
-if (!fs.existsSync('generated')) {
-  fs.mkdirSync('generated')
-}
-
 export const generateCode = async (req: Request, res: Response) => {
   try {
     const { prompt, language = 'javascript' } = req.body
+    
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({ error: 'Prompt is required' })
+    }
     
     const codePrompt = `Generate ${language} code for: ${prompt}. 
     Please provide clean, well-commented code. 
