@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Play, Save, Eye, Copy, Check } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Play, Loader } from 'lucide-react'
 import { codeService } from '../services/codeService'
 
 interface CodeGeneratorProps {
@@ -9,9 +10,7 @@ interface CodeGeneratorProps {
 const CodeGenerator: React.FC<CodeGeneratorProps> = ({ onCodeGenerated }) => {
   const [prompt, setPrompt] = useState('')
   const [language, setLanguage] = useState('javascript')
-  const [generatedCode, setGeneratedCode] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [copied, setCopied] = useState(false)
 
   const languages = [
     'javascript', 'typescript', 'html', 'css', 'python', 'java', 
@@ -24,8 +23,8 @@ const CodeGenerator: React.FC<CodeGeneratorProps> = ({ onCodeGenerated }) => {
     setIsGenerating(true)
     try {
       const result = await codeService.generateCode(prompt, language)
-      setGeneratedCode(result.code)
       onCodeGenerated(result.code, language)
+      setPrompt('')
     } catch (error) {
       console.error('Code generation failed:', error)
     } finally {
@@ -33,103 +32,64 @@ const CodeGenerator: React.FC<CodeGeneratorProps> = ({ onCodeGenerated }) => {
     }
   }
 
-  const handleCopy = async () => {
-    if (generatedCode) {
-      await navigator.clipboard.writeText(generatedCode)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
-
-  const handlePreview = async () => {
-    if (generatedCode) {
-      try {
-        const result = await codeService.previewCode(generatedCode, language)
-        if (result.success && result.previewUrl) {
-          window.open(result.previewUrl, '_blank')
-        }
-      } catch (error) {
-        console.error('Preview failed:', error)
-      }
-    }
-  }
-
-  const handleSave = async () => {
-    if (generatedCode) {
-      const filename = prompt.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_')
-      try {
-        await codeService.saveCode(generatedCode, filename, language)
-        alert('Code saved successfully!')
-      } catch (error) {
-        console.error('Save failed:', error)
-      }
-    }
-  }
-
   return (
-    <div className="code-generator">
-      <div className="generator-header">
-        <h3>Code Generator</h3>
+    <div className="h-full p-6 space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-white mb-2">Code Generator</h3>
+        <p className="text-white/60 text-sm">Describe what you want to build and I'll generate the code for you.</p>
       </div>
       
-      <div className="generator-form">
-        <div className="form-row">
-          <input
-            type="text"
+      <div className="space-y-4">
+        <div>
+          <label className="block text-white/80 text-sm font-medium mb-2">
+            What do you want to build?
+          </label>
+          <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe what you want to build..."
-            className="code-prompt"
+            placeholder="e.g., A responsive navigation bar with dropdown menus..."
+            rows={4}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200 resize-none"
           />
+        </div>
+        
+        <div>
+          <label className="block text-white/80 text-sm font-medium mb-2">
+            Language
+          </label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="language-select"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200"
           >
             {languages.map(lang => (
-              <option key={lang} value={lang}>
+              <option key={lang} value={lang} className="bg-gray-800">
                 {lang.charAt(0).toUpperCase() + lang.slice(1)}
               </option>
             ))}
           </select>
         </div>
         
-        <button
+        <motion.button
           onClick={handleGenerate}
           disabled={isGenerating || !prompt.trim()}
-          className="generate-btn"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full px-6 py-3 bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2"
         >
-          <Play size={16} />
-          {isGenerating ? 'Generating...' : 'Generate Code'}
-        </button>
+          {isGenerating ? (
+            <>
+              <Loader className="w-5 h-5 animate-spin" />
+              <span>Generating...</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-5 h-5" />
+              <span>Generate Code</span>
+            </>
+          )}
+        </motion.button>
       </div>
-
-      {generatedCode && (
-        <div className="code-output">
-          <div className="output-header">
-            <span>Generated {language} code:</span>
-            <div className="output-actions">
-              <button onClick={handleCopy} className="action-btn">
-                {copied ? <Check size={16} /> : <Copy size={16} />}
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-              {['html', 'css', 'javascript'].includes(language) && (
-                <button onClick={handlePreview} className="action-btn">
-                  <Eye size={16} />
-                  Preview
-                </button>
-              )}
-              <button onClick={handleSave} className="action-btn">
-                <Save size={16} />
-                Save
-              </button>
-            </div>
-          </div>
-          <pre className="code-block">
-            <code>{generatedCode}</code>
-          </pre>
-        </div>
-      )}
     </div>
   )
 }

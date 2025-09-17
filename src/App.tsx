@@ -1,11 +1,24 @@
-import React from 'react'
-import ChatPage from './pages/ChatPage'
-import './App.css'
+import React, { useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import WelcomeScreen from './components/WelcomeScreen'
+import MainWorkspace from './components/MainWorkspace'
 
 function App() {
+  const [hasStarted, setHasStarted] = useState(false)
+
+  const handleStart = () => {
+    setHasStarted(true)
+  }
+
   return (
-    <div className="app">
-      <ChatPage />
+    <div className="min-h-screen relative overflow-hidden">
+      <AnimatePresence mode="wait">
+        {!hasStarted ? (
+          <WelcomeScreen key="welcome" onStart={handleStart} />
+        ) : (
+          <MainWorkspace key="workspace" />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
