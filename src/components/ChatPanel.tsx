@@ -4,6 +4,7 @@ import { Send, Paperclip, Code, Zap } from 'lucide-react'
 import { Message } from '../../models/Message'
 import MessageItem from './MessageItem'
 import CodeGenerator from './CodeGenerator'
+import ModelSelector from './ModelSelector'
 
 interface ChatPanelProps {
   messages: Message[]
@@ -59,10 +60,11 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           <div className="p-2 bg-white/10 rounded-lg">
             <Zap className="w-6 h-6 text-white" />
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="text-xl font-semibold text-white">OttoDev Assistant</h2>
             <p className="text-white/60 text-sm">Powered by Ollama</p>
           </div>
+          <ModelSelector />
         </div>
         
         <div className="flex space-x-2">

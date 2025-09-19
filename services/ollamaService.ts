@@ -6,13 +6,63 @@ interface Message {
   content: string
 }
 
+interface OllamaModel {
+  name: string
+  model: string
+  size: number
+  digest: string
+  details: {
+    format: string
+    family: string
+    families: string[]
+    parameter_size: string
+    quantization_level: string
+  }
+  modified_at: string
+}
+
 export class OllamaService {
   private readonly host: string
-  private readonly model: string
+  private model: string
 
   constructor() {
     this.host = process.env.OLLAMA_HOST || 'http://localhost:11434'
     this.model = process.env.MODEL || 'deepseek-coder'
+  }
+
+  setModel(model: string) {
+    this.model = model
+  }
+
+  getModel() {
+    return this.model
+  }
+
+  async getModels(): Promise<string[]> {
+    try {
+      const response = await axios.get(`${this.host}/api/tags`, {
+        timeout: 5000
+      })
+      
+      if (response.data && response.data.models) {
+        return response.data.models.map((model: OllamaModel) => model.name)
+      }
+      return []
+    } catch (error) {
+      console.error('Failed to fetch Ollama models:', error)
+      throw new Error('Failed to connect to Ollama')
+    }
+  }
+
+  async checkConnection(): Promise<boolean> {
+    try {
+      await axios.get(`${this.host}/api/tags`, {
+        timeout: 3000
+      })
+      return true
+    } catch (error) {
+      return false
+    }
   }
 
   async chat(messages: Message[], stream: boolean = false) {
