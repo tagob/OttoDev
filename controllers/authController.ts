@@ -45,7 +45,7 @@ export const githubCallback = (req: Request, res: Response, next: any) => {
       })
 
       // Redirect to main app
-      res.redirect('/')
+      res.redirect('http://localhost:5173')
     })
   })(req, res, next)
 }

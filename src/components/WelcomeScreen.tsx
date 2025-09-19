@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Zap, Code, MessageSquare, Sparkles, ArrowRight, Bot, User, LogOut } from 'lucide-react'
+import { Zap, Code, MessageSquare, Sparkles, ArrowRight, Bot, User, LogOut, Github } from 'lucide-react'
 import { authService } from '../services/authService'
 
 interface WelcomeScreenProps {
@@ -155,11 +155,22 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, user }) => {
                 disabled={!input.trim()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:cursor-not-allowed rounded-lg transition-all duration-200"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:cursor-not-allowed rounded-lg transition-all duration-200 flex items-center justify-center"
               >
                 <ArrowRight className="w-5 h-5 text-white" />
               </motion.button>
             </div>
+            
+            {/* GitHub Import Button */}
+            <motion.button
+              onClick={() => window.location.href = '/auth/github/login'}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-200 border border-gray-700"
+            >
+              <Github className="w-5 h-5" />
+              <span>Import Repository from GitHub</span>
+            </motion.button>
             
             <div className="flex items-center justify-center space-x-4 text-sm text-white/60">
               <span>Press Enter to start</span>
