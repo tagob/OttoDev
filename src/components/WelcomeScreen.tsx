@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Zap, Code, MessageSquare, Sparkles, ArrowRight, Bot } from 'lucide-react'
+import { Zap, Code, MessageSquare, Sparkles, ArrowRight, Bot, User, LogOut } from 'lucide-react'
+import { authService } from '../services/authService'
 
 interface WelcomeScreenProps {
   onStart: (message: string) => void
+  user?: any
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, user }) => {
   const [input, setInput] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -16,6 +18,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
     }
   }
 
+  const handleLogout = () => {
+    authService.logout()
+  }
   const features = [
     {
       icon: <MessageSquare className="w-5 h-5" />,
@@ -41,6 +46,32 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
       exit={{ opacity: 0 }}
       className="min-h-screen flex items-center justify-center p-4"
     >
+      {/* User Profile Header */}
+      {user && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-6 right-6 flex items-center space-x-3"
+        >
+          <div className="flex items-center space-x-2 glass rounded-lg px-3 py-2">
+            <img
+              src={user.avatarUrl}
+              alt={user.name}
+              className="w-8 h-8 rounded-full"
+            />
+            <span className="text-white text-sm font-medium">{user.name}</span>
+          </div>
+          <motion.button
+            onClick={handleLogout}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 glass rounded-lg text-white/70 hover:text-white transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </motion.button>
+        </motion.div>
+      )}
+
       <div className="max-w-2xl w-full">
         {/* Logo and Title */}
         <motion.div
@@ -74,7 +105,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             transition={{ delay: 0.6 }}
             className="text-xl text-white/80 mb-8"
           >
-            Your Local Development Assistant
+            Welcome back, {user?.name || 'Developer'}!
           </motion.p>
 
           {/* Features */}
@@ -133,7 +164,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             <div className="flex items-center justify-center space-x-4 text-sm text-white/60">
               <span>Press Enter to start</span>
               <span>•</span>
-              <span>Powered by Ollama</span>
+              <span>Connected to GitHub</span>
             </div>
           </form>
         </motion.div>

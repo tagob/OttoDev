@@ -7,9 +7,10 @@ import { useFileUpload } from '../hooks/useFileUpload'
 
 interface MainWorkspaceProps {
   initialMessage: string
+  user?: any
 }
 
-const MainWorkspace: React.FC<MainWorkspaceProps> = ({ initialMessage }) => {
+const MainWorkspace: React.FC<MainWorkspaceProps> = ({ initialMessage, user }) => {
   const { messages, isLoading, sendMessage } = useChat()
   const { uploadFile } = useFileUpload()
   const [generatedCode, setGeneratedCode] = useState<{code: string, language: string} | null>(null)
@@ -61,6 +62,7 @@ const MainWorkspace: React.FC<MainWorkspaceProps> = ({ initialMessage }) => {
           onSendMessage={handleSendMessage}
           onFileUpload={handleFileUpload}
           onCodeGenerated={handleCodeGenerated}
+          user={user}
         />
       </motion.div>
 

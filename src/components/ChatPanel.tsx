@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Paperclip, Code, Zap } from 'lucide-react'
+import { Send, Paperclip, Code, Zap, User, Github } from 'lucide-react'
 import { Message } from '../../models/Message'
 import MessageItem from './MessageItem'
 import CodeGenerator from './CodeGenerator'
 import ModelSelector from './ModelSelector'
+import UserProfile from './UserProfile'
 
 interface ChatPanelProps {
   messages: Message[]
@@ -12,6 +13,7 @@ interface ChatPanelProps {
   onSendMessage: (message: string) => void
   onFileUpload: (file: File) => void
   onCodeGenerated: (code: string, language: string) => void
+  user?: any
 }
 
 const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -19,10 +21,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   isLoading,
   onSendMessage,
   onFileUpload,
-  onCodeGenerated
+  onCodeGenerated,
+  user
 }) => {
   const [input, setInput] = useState('')
   const [showCodeGen, setShowCodeGen] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -64,6 +68,21 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             <h2 className="text-xl font-semibold text-white">OttoDev Assistant</h2>
             <p className="text-white/60 text-sm">Powered by Ollama</p>
           </div>
+          {user && (
+            <motion.button
+              onClick={() => setShowProfile(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center space-x-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-all duration-200"
+            >
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="w-6 h-6 rounded-full"
+              />
+              <Github className="w-4 h-4" />
+            </motion.button>
+          )}
           <ModelSelector />
         </div>
         
@@ -188,6 +207,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           )}
         </AnimatePresence>
       </div>
+
+      {/* User Profile Modal */}
+      <AnimatePresence>
+        {showProfile && (
+          <UserProfile onClose={() => setShowProfile(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
