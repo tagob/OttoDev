@@ -4,7 +4,7 @@ import { User, GitHubUser } from '../models/User.js'
 
 // GitHub App Configuration
 const GITHUB_APP_ID = 1980174
-const GITHUB_CLIENT_ID = "Iv23liIBltXpvlTZx59D"
+const GITHUB_CLIENT_ID = "Ov23liPXbH2v0kxsR0lv"
 const GITHUB_CLIENT_SECRET = "3fdecc304abe4274c73b79149a29ffc487a25bb4"
 const GITHUB_PRIVATE_KEY_PATH = "./config/otto-dev-private-key.pem"
 
