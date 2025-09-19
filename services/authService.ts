@@ -18,7 +18,7 @@ export class AuthService {
       clientID: GITHUB_CLIENT_ID,
       clientSecret: GITHUB_CLIENT_SECRET,
       callbackURL: "/auth/github/callback",
-      scope: ['read:user', 'user:email', 'repo']
+      scope: ['read:user', 'user:email']
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
       try {
